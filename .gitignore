@@ -1,0 +1,22 @@
+# Application files
+######################
+*.pyc
+.webassets-cache
+.sass-cache
+venv/
+media/
+static/CACHE
+migrations/
+node_modules/
+public/assets/
+
+
+# OS generated files
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
