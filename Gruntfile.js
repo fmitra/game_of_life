@@ -29,6 +29,9 @@ module.exports = function(grunt) {
     },
     uglify: {
       my_target: {
+        options: {
+          beautify: true
+        },
         files: {
           'public/assets/main.min.js': [
             'assets/scripts/game_of_life.js'
