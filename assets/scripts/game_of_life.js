@@ -75,15 +75,16 @@ GameOfLife.prototype = {
                 var column_left = (x-1 >= 0) ? x-1 : current_generation[y].length - 1;
                 var column_right = (x+1 <= current_generation[y].length - 1) ? x+1 : 0;
 
+                // This is incredibly fucking stupid
                 var neighbors = {
-                    top_left: current_generation[row_above][column_left].create(),
-                    top_center: current_generation[row_above][x].create(),
-                    top_right: current_generation[row_above][column_right].create(),
-                    left: current_generation[y][column_left].create(),
-                    right: current_generation[y][column_right].create(),
-                    bottom_left: current_generation[row_below][column_left].create(),
-                    bottom_center: current_generation[row_below][x].create(),
-                    bottom_right: current_generation[row_below][column_right].create()
+                    top_left: current_generation[row_above][column_left],
+                    top_center: current_generation[row_above][x],
+                    top_right: current_generation[row_above][column_right],
+                    left: current_generation[y][column_left],
+                    right: current_generation[y][column_right],
+                    bottom_left: current_generation[row_below][column_left],
+                    bottom_center: current_generation[row_below][x],
+                    bottom_right: current_generation[row_below][column_right]
                 };
 
                 var alive_count = 0;
@@ -143,9 +144,6 @@ Cell.prototype = {
     setState: function(state) {
         this.state = state;
     },
-    create: function() {
-        return new Cell(this.x_position, this.y_position, this.state);
-    }
 
 }
 
