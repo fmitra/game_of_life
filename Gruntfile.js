@@ -34,6 +34,7 @@ module.exports = function(grunt) {
         },
         files: {
           'public/assets/main.min.js': [
+            'assets/scripts/underscore/underscore-min.js',
             'assets/scripts/game_of_life.js'
           ]
         }
