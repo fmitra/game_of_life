@@ -15,8 +15,11 @@ var example_cells = [
 ];
 
 function Life(cell_array) {
+    // Raw data values for processing
     this.cell_array = cell_array;
-    this.current_generaton = [];
+    // A collection of Life objects
+    this.current_generation = [];
+    // The pending creation of Life objects
     this.next_generation = [];
 }
 
@@ -29,14 +32,15 @@ function Cell(x_position, y_position, state) {
 
 Life.prototype = {
 
+    // On intialization, we parse a multi-dimensional array
+    // of values and instantiate them as Cell objects, and likewise
+    // create a Collection of Cells
     initialize: function() {
 
         var self = this;
 
         // Vertical loop
         for (var y = 0; y < this.cell_array.length; y++) {
-
-            // console.log('vertical');
 
             // Horizontal loop
             for (var x = 0; x < this.cell_array[y].length; x++) {
@@ -57,8 +61,7 @@ Life.prototype = {
                 var state = (this.cell_array[y][x] == 1) ? 'alive' : 'dead';
                 var new_cell = new Cell(x, y, state);
 
-                this.current_generaton.push(new_cell);
-                // console.log('horizontal');
+                this.current_generation.push(new_cell);
             }
 
         }
@@ -67,80 +70,93 @@ Life.prototype = {
 
     determineNewCellState: function() {
 
-        var self = this;
-        var state;
-        var raw;
-        var cell;
+        this.updateCells();
 
-        console.log(this.current_generaton);
+        // reset
+        this.next_generation = [];
 
-        for (var y = 0; y < this.cell_array.length; y++) {
+        for (var i = 0; i < this.current_generation.length; i++) {
 
-            for (var x = 0; x < this.cell_array[y].length; x++) {
+            // console.log(this.current_generation[i]);
 
-                /*--------------------------------------------
+            var cell = this.current_generation[i];
 
-                  We're working with the raw array values as it's easy to 
-                  reference them on a coordinate based grid. We can reference
-                  them against the Cell objects with Underscore's utility
-                  methods
+            var row_above = (cell.y_position-1 >= 0) ? cell.y_position-1 : 9-1;
+            var row_below = (cell.y_position+1 <= 9-1) ? cell.y_position+1 : 0;
+            var column_left = (cell.x_position-1 >= 0) ? cell.x_position-1 : 9-1;
+            var column_right = (cell.x_position+1 <= 9-1) ? cell.x_position+1 : 0;
 
-                --------------------------------------------*/
-                cell = _.findWhere(self.current_generaton, {'x_position': x, 'y_position': y});
-                raw  = this.cell_array[y][x];
+            var neighbors = {
 
-                var row_above    = (y-1 >= 0) ? y-1 : this.cell_array.length - 1;
-                var row_below    = (y+1 <= this.cell_array.length - 1) ? y+1 : 0;
-                var column_left  = (x-1 >= 0) ? x-1 : this.cell_array[y].length - 1;
-                var column_right = (x+1 <= this.cell_array[y].length - 1) ? x+1 : 0;
-
-                var neighbors = {
-                    top_left: this.cell_array[row_above][column_left],
-                    top_center: this.cell_array[row_above][x],
-                    top_right: this.cell_array[row_above][column_right],
-                    left: this.cell_array[y][column_left],
-                    right: this.cell_array[y][column_right],
-                    bottom_left: this.cell_array[row_below][column_left],
-                    bottom_center: this.cell_array[row_below][x],
-                    bottom_right: this.cell_array[row_below][column_right]
-                }
-
-                var alive_count = 0;
-                var dead_count  = 0;
-
-                for (n in neighbors) {
-
-                    (neighbors[n] == 1) ? alive_count++ : dead_count++;
-
-                }
-
-                state = cell.state;
-
-                // Reset the raw cell value, it should always reflect the latest generation
-                // as we use this for processing
-                if (raw === 1) {
-                    if(alive_count < 2 || alive_count > 3) {
-                        state = 'dead';
-                        raw = 0;
-                    } else if (alive_count === 2 || alive_count ===3) {
-                        state = 'alive';
-                        raw = 1;
-                    }
-                } else {
-                    if(alive_count == 3) {
-                        state = 'alive';
-                        raw = 1;
-                    }
-                }
-
-                var new_cell = new Cell(x, y, state);
-                self.next_generation.push(new_cell);
+                top_left: _.findWhere(this.current_generation, {'x_position': column_left, 'y_position': row_above}),
+                top_center: _.findWhere(this.current_generation, {'x_position': cell.x_position, 'y_position': row_above}),
+                top_right: _.findWhere(this.current_generation, {'x_position': column_right, 'y_position': row_above}),
+                left: _.findWhere(this.current_generation, {'x_position': column_left, 'y_position': cell.y_position}),
+                right: _.findWhere(this.current_generation, {'x_position': column_right, 'y_position': cell.y_position}),
+                bottom_left: _.findWhere(this.current_generation, {'x_position': column_left, 'y_position': row_below}),
+                bottom_center: _.findWhere(this.current_generation, {'x_position': cell.x_position, 'y_position': row_below}),
+                bottom_right: _.findWhere(this.current_generation, {'x_position': column_right, 'y_position': row_below})
 
             }
 
+            var alive_count = 0;
+            var dead_count = 0;
+
+            for (n in neighbors) {
+                (neighbors[n].state == 'alive') ? alive_count++ : dead_count++;
+            }
+
+            var state = cell.state;
+            if (cell.state == 'alive') {
+                if(alive_count < 2 || alive_count > 3) {
+                    state = 'dead';
+                } else if (alive_count == 2 || alive_count == 3) {
+                    state = 'alive';
+                }
+            } else {
+                if(alive_count == 3) {
+                    state = 'alive';
+                }
+            }
+
+            var new_cell = new Cell(cell.x_position, cell.y_position, state);
+            this.next_generation.push(new_cell);
+
         }
 
-        console.log(this.next_generation);
+        console.log('current: ', this.current_generation);
+        console.log('next: ', this.next_generation);
+
+        // set new generation of cells
+        this.current_generation = this.next_generation;
+
+    },
+
+    updateCells: function() {
+
+        var self = this;
+
+        for(var x = 0; x < this.current_generation.length; x++) {
+            self.drawCell(this.current_generation[x]);
+        }
+
+    },
+
+    drawCell: function(cell) {
+
+        var canvas = document.getElementById('canvas-block__board').getContext('2d');
+        var size = 5;
+        canvas.strokeStyle = '#e1e1e1';
+        canvas.fillStyle = '#000000';
+
+        var start_x = cell.getPositionX() * size;
+        var start_y = cell.getPositionY() * size;
+
+        if (cell.getState() == 'alive') {
+            canvas.fillRect(start_x, start_y, size, size);
+        } else {
+            canvas.clearRect(start_x, start_y, size, size);
+        }
 
     }
 
