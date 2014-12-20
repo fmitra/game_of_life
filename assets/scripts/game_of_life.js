@@ -14,7 +14,7 @@ var Cell = function(x_position, y_position, state) {
     this.x_position = x_position;
     this.y_position = y_position;
     this.state      = state;
-}
+};
 
 var Life = function(cell_array) {
     // Raw data values for processing
@@ -65,10 +65,15 @@ var Life = function(cell_array) {
     };
 
     _initialize.apply(this);
-}
+};
 
 
 Life.prototype = {
+
+    animateCells: function() {
+        var self = this;
+        setInterval(function() { self.determineNewCellState(); }, 1000);
+    },
 
     determineNewCellState: function() {
 
@@ -162,8 +167,9 @@ Life.prototype = {
 
     }
 
-}
+};
 
 
 var life = new Life(example_cells);
-life.determineNewCellState();
+life.animateCells();
+
